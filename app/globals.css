@@ -1,22 +1,68 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Base — warm parchment */
+  --background: #faf7f2;
+  --surface: #ffffff;
+  --foreground: #2c2420;
+  --foreground-muted: #7a6f5f;
+  --foreground-subtle: #a89f8f;
+  --border: #e8e1d4;
+
+  /* Primary accent — deep purple (reverence, reflection) */
+  --accent: #6b3fa0;
+  --accent-hover: #5a3486;
+  --accent-soft: #f3edfa;
+
+  /* Secondary accent — muted gold (sacred, celebratory) */
+  --gold: #b8860b;
+  --gold-soft: #fdf6e3;
+
+  /* States */
+  --state-done: #4d7c5f;       /* muted sage green */
+  --state-done-bg: #eef3ee;
+  --state-overdue: #b5484a;    /* muted brick red */
+  --state-overdue-bg: #fbeeee;
+  --state-today: #b8860b;      /* gold, ties to secondary accent */
+  --state-today-bg: #fdf6e3;
+  --state-upcoming: #7a6f5f;
+  --state-upcoming-bg: #f2ede4;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-subtle: var(--foreground-subtle);
+  --color-border: var(--border);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+
+  --color-state-done: var(--state-done);
+  --color-state-done-bg: var(--state-done-bg);
+  --color-state-overdue: var(--state-overdue);
+  --color-state-overdue-bg: var(--state-overdue-bg);
+  --color-state-today: var(--state-today);
+  --color-state-today-bg: var(--state-today-bg);
+  --color-state-upcoming: var(--state-upcoming);
+  --color-state-upcoming-bg: var(--state-upcoming-bg);
+
+  --color-cat-worship: var(--cat-worship);
+  --color-cat-worship-bg: var(--cat-worship-bg);
+  --color-cat-fellowship: var(--cat-fellowship);
+  --color-cat-fellowship-bg: var(--cat-fellowship-bg);
+  --color-cat-service: var(--cat-service);
+  --color-cat-service-bg: var(--cat-service-bg);
+  --color-cat-prayer: var(--cat-prayer);
+  --color-cat-prayer-bg: var(--cat-prayer-bg);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
