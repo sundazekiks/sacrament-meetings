@@ -1,16 +1,16 @@
 import type { SacramentMeeting } from './types';
 import { sql } from './sql';
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 4;
 
 export async function getMeetings(
-    query: string = '',
-    currentPage: number = 1
+  query: string = '',
+  currentPage: number = 1
 ): Promise<SacramentMeeting[]> {
-    const searchTerm = `%${query}%`;
+  const searchTerm = `%${query}%`;
 
-    const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-    const rows = await sql`
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  const rows = await sql`
     SELECT
       id,
       to_char(date, 'YYYY-MM-DD') AS "date",
@@ -33,14 +33,14 @@ export async function getMeetings(
     ORDER BY date DESC
     LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
   `;
-    return rows as unknown as SacramentMeeting[];
+  return rows as unknown as SacramentMeeting[];
 }
 
 export async function getMeetingsTotalPages(
-    query: string = ''
+  query: string = ''
 ): Promise<number> {
-    const searchTerm = `%${query}%`;
-    const rows = await sql`
+  const searchTerm = `%${query}%`;
+  const rows = await sql`
     SELECT COUNT(*) FROM sacrament_meetings.meetings
     WHERE
       presiding     ILIKE ${searchTerm}
@@ -48,13 +48,13 @@ export async function getMeetingsTotalPages(
       OR meeting_type ILIKE ${searchTerm}
       OR speakers::text ILIKE ${searchTerm}
   `;
-    return Math.ceil(Number(rows[0].count) / ITEMS_PER_PAGE);
+  return Math.ceil(Number(rows[0].count) / ITEMS_PER_PAGE);
 }
 
 export async function getMeetingById(
-    id: number
+  id: number
 ): Promise<SacramentMeeting | null> {
-    const rows = await sql`
+  const rows = await sql`
     SELECT
       id,
       to_char(date, 'YYYY-MM-DD') AS "date",
@@ -70,7 +70,7 @@ export async function getMeetingById(
       closing_prayer              AS "closingPrayer"
     FROM sacrament_meetings.meetings WHERE id = ${id}
   `;
-    return (rows[0] as unknown as SacramentMeeting) ?? null;
+  return (rows[0] as unknown as SacramentMeeting) ?? null;
 }
 
 // Mutation stubs — will be wired to the database in Week 04
