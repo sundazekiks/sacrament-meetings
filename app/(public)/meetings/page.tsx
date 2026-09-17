@@ -7,6 +7,8 @@ import { SacramentMeeting } from "@/lib/types";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+// Refactor to dynamic rendering; make this component a server component
+
 
 export default function Meetings() {
     const [meetings, setMeetings] = useState<SacramentMeeting[] | []>([])

@@ -3,6 +3,9 @@
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 
+// Refactor to dynamic rendering; make this component a server component
+
+
 export function MeetingSearch() {
     const searchParams = useSearchParams();
     const pathname = usePathname();
