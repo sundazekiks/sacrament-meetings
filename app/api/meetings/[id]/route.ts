@@ -6,7 +6,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     try {
         const id = Number((await params).id)
         if (!id) throw new AppError("Please provide a valid id", 400);
-        const meeting = getMeetingById(id);
+        const meeting = await getMeetingById(id);
         if (!meeting) throw new AppError("Meeting does not exist", 404);
         return NextResponse.json({ meeting: meeting }, { status: 200 })
     } catch (err) {
