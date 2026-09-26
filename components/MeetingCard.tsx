@@ -11,7 +11,7 @@ export default function MeetingCard({
     wardBusiness,
 }: SacramentMeeting) {
     return (
-        <Link href={`/meetings/${id}`} className="p-4 flex gap-4 rounded-xl bg-surface border border-border shadow-sm hover:bg-accent-soft cursor-pointer">
+        <Link href={`/meetings/${id}`} className="p-4 flex gap-4 rounded-xl bg-surface border border-border shadow-sm hover:bg-accent-soft cursor-pointer m-2">
             <Image
                 src={sacLog}
                 alt="Sacrament meeting logo"

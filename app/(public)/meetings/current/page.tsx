@@ -20,9 +20,6 @@ export default function Current() {
                 if (!res.ok) {
                     throw new Error(result.message ?? "Failed to load meetings");
                 }
-
-                // If your API returns { meetings: SacramentMeeting[] }, use it directly.
-                // Keep the [0] only if the API actually nests an array of arrays.
                 setMeetings(result.meetings ?? []);
             } catch (err) {
                 console.error(err);
