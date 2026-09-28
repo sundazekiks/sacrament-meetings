@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState, type ReactNode } from "react";
 import { SacramentMeeting } from "@/lib/types";
+import DeleteMeetingButton from "./DeleteBtn";
 
 function formatMeetingDate(iso: string) {
     const [year, month, day] = iso.split("-").map(Number);
@@ -106,6 +107,7 @@ export default function MeetingDetail({ id }: { id: number }) {
 
     return (
         <div className="mx-auto max-w-xl px-4 py-10">
+            <DeleteMeetingButton id={id} />
             <div className="rounded-sm border border-border bg-surface px-6 py-10 shadow-sm sm:px-12">
                 {/* Header */}
                 <div className="text-center">

@@ -1,8 +1,14 @@
-import { getMeetings, getMeetingsTotalPages } from "@/lib/meetings-db";
+import { getMeetingById, getMeetings, getMeetingsTotalPages } from "@/lib/meetings-db";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
     try {
+        // for editing the page
+        const id = Number(new URL(request.url).searchParams.get("id") || "");
+        if (id) {
+            const meeting = await getMeetingById(id);
+            return NextResponse.json(meeting)
+        }
         // for the current page 
         const date = new URL(request.url).searchParams.get("date") || "";
         if (date) {
