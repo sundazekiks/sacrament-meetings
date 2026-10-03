@@ -1,3 +1,11 @@
+import { Speaker } from "./action";
+import * as z from 'zod'
+
+const SpeakerSchema = z.array(z.strictObject({
+    name: z.string(),
+    topic: z.string(),
+    type: z.enum(['speaker', 'musical-number'])
+}))
 
 export function getSundayISO(): string {
     const today = new Date();
@@ -31,16 +39,13 @@ export function wardBusinessUtil(business: string) {
     return businesses;
 }
 
-export function speakerUtil(formData: FormData) {
-    const speakers = [];
-    for (let i = 1; i <= 3; i++) {
-        const speaker = {
-            name: formData.get(`name${i}`),
-            topic: formData.get(`topic${i}`),
-            type: formData.get(`type${i}`)
-        }
-        speakers.push(speaker);
-    }
+export function speakerUtil(formData: FormData): Speaker[] {
+    const names = formData.getAll("name").map(String);
+    const topics = formData.getAll("topic").map(String);
+    const types = formData.getAll("type").map(String);
 
-    return speakers;
+    return names
+        .map((name, i) => ({ name, topic: topics[i], type: types[i] }))
+        .filter((s) => s.name.trim())
+        .map((s) => SpeakerSchema.parse(s));
 }

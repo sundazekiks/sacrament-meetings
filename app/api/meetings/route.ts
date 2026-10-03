@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
         const id = Number(new URL(request.url).searchParams.get("id") || "");
         if (id) {
             const meeting = await getMeetingById(id);
+            if (Object.keys(meeting).length === 0) return NextResponse.json({}, { status: 404 })
             return NextResponse.json(meeting)
         }
         // for the current page 

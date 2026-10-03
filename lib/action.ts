@@ -9,12 +9,19 @@ import { updateMeeting } from './meetings-db';
 import { revalidatePath } from 'next/cache';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { deleteMeeting } from './meetings-db';
+import { signIn, signOut } from '@/auth';
 
 const HymnSchema = z.strictObject({
     number: z.number(),
     title: z.string(),
 });
+const SpeakerSchema = z.array(z.strictObject({
+    name: z.string(),
+    topic: z.string(),
+    type: z.enum(['speaker', 'musical-number'])
+}))
 
+export type Speaker = z.infer<typeof SpeakerSchema>
 
 // Meeting schema for validation / cleaning a record
 const MeetingFormSchema = z.object({
@@ -30,11 +37,7 @@ const MeetingFormSchema = z.object({
     })),
     stakeBusiness: z.boolean(),
     sacramentHymn: HymnSchema,
-    speakers: z.array(z.strictObject({
-        name: z.string(),
-        topic: z.string(),
-        type: z.enum(['speaker', 'musical-number'])
-    })),
+    speakers: SpeakerSchema,
     closingHymn: HymnSchema,
     closingPrayer: z.string()
 })
@@ -87,6 +90,7 @@ export const updatingMeeting = async (formData: FormData) => {
             closingHymn: hymnUtil(formData, "closingHymn"),
             closingPrayer: formData.get('closingPrayer'),
         }
+        console.log(raw.speakers)
         const results = MeetingFormSchema.safeParse(raw);
         if (!results.success) throw new AppError(results.error.message, 400, 400);
         console.log(results)
@@ -115,4 +119,17 @@ export const deletingMeeting = async (id: number) => {
         console.log(appError.message);
         redirect("/meetings")
     }
+}
+
+export const signInUser = async (formData: FormData) => {
+    console.log("Signing in user..." + formData.get("username"))
+    await signIn("credentials", {
+        username: formData.get("username") as string,
+        password: formData.get("password") as string,
+    })
+}
+
+export const signOutUser = async () => {
+    console.log("Signing out user...")
+    await signOut()
 }

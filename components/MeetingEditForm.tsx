@@ -1,5 +1,5 @@
 import { SacramentMeeting } from "@/lib/types";
-
+import SpeakerCard from "./SpeakerInput";
 
 export default function MeetingForm({ sacramentMeeting, onSave }: { sacramentMeeting: SacramentMeeting, onSave: (formData: FormData) => Promise<void> }) {
     return (<form className="mx-auto max-w-2xl space-y-8 p-6 sm:p-10" action={onSave}>
@@ -82,47 +82,12 @@ export default function MeetingForm({ sacramentMeeting, onSave }: { sacramentMee
                     className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200" />
             </div>
         </fieldset>
-        {(sacramentMeeting.speakers.length != 0) ?
-            < fieldset className="rounded-lg border border-slate-200 p-4">
-                <legend className="px-1 text-sm font-medium text-slate-700">Speakers</legend>
-                <div className="space-y-3">
-                    <div className='speaker1 grid gap-3 sm:grid-cols-[1fr_1fr_auto]'>
-                        <input type="text" name='name1' placeholder="Name" defaultValue={sacramentMeeting.speakers[0].name}
-                            className="rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200" />
-                        <input type="text" name='topic1' placeholder="Topic" defaultValue={sacramentMeeting.speakers[0].topic}
-                            className="rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200" />
-                        <select name="type1" id="type1" defaultValue={sacramentMeeting.speakers[0].type}
-                            className="rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200">
-                            <option value="speaker">Speaker</option>
-                            <option value="musical-number">Musical Number</option>
-                        </select>
-                    </div>
+        <div className="p-2">
+            {(sacramentMeeting.speakers.length != 0) ?
 
-                    <div className='speaker2 grid gap-3 sm:grid-cols-[1fr_1fr_auto]'>
-                        <input type="text" name='name2' placeholder="Name" defaultValue={sacramentMeeting.speakers[1].name}
-                            className="rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200" />
-                        <input type="text" name='topic2' placeholder="Topic" defaultValue={sacramentMeeting.speakers[1].topic}
-                            className="rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200" />
-                        <select name="type2" id="type2" defaultValue={sacramentMeeting.speakers[1].type}
-                            className="rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200">
-                            <option value="speaker">Speaker</option>
-                            <option value="musical-number">Musical Number</option>
-                        </select>
-                    </div>
-                    <div className='speaker1 grid gap-3 sm:grid-cols-[1fr_1fr_auto]'>
-                        <input type="text" name='name3' placeholder="Name" defaultValue={sacramentMeeting.speakers[2].name}
-                            className="rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200" />
-                        <input type="text" name='topic3' placeholder="Topic" defaultValue={sacramentMeeting.speakers[2].topic}
-                            className="rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200" />
-                        <select name="type3" id="type3" defaultValue={sacramentMeeting.speakers[2].type}
-                            className="rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200">
-                            <option value="speaker">Speaker</option>
-                            <option value="musical-number">Musical Number</option>
-                        </select>
-                    </div>
-                </div>
-            </fieldset> : ""
-        }
+                sacramentMeeting.speakers.map((item, i) => (<SpeakerCard key={i} speaker={item} />)) : ""
+            }
+        </div>
         <fieldset className="rounded-lg border border-slate-200 p-4">
             <legend className="px-1 text-sm font-medium text-slate-700">Closing Hymn</legend>
             <div className="flex gap-3">

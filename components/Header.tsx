@@ -1,12 +1,14 @@
 "use client"
+
 import { House, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import NavLinks from './NavLinks';
 import Link from 'next/link';
+import Logout from './sign-out-btn';
 
-export default function LocationDropdown() {
+
+export default function LocationDropdown({ isLoggedIn }: { isLoggedIn: boolean }) {
     const [active, setActive] = useState(false);
-
     return (
         <div className='flex gap-2'>
             <div
@@ -31,6 +33,19 @@ export default function LocationDropdown() {
                 )}
 
             </div>
+            {
+                isLoggedIn && (
+                    <Link href={`/meetings/new`}
+                        className="flex items-center gap-2 rounded-sm border border-border bg-surface px-4 py-2 text-sm text-foreground transition-colors hover:border-accent hover:bg-accent-soft hover:text-accent-hover m-2 cursor-pointer"
+                        aria-expanded={active}
+                    >
+                        New
+                    </Link>
+                )
+            }
+            {
+                isLoggedIn && (<Logout />)
+            }
             <Link href={`/meetings/current`}
                 className="flex items-center gap-2 rounded-sm border border-border bg-surface px-4 py-2 text-sm text-foreground transition-colors hover:border-accent hover:bg-accent-soft hover:text-accent-hover m-2 cursor-pointer"
                 aria-expanded={active}
