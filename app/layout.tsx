@@ -15,9 +15,22 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+
 export const metadata: Metadata = {
-  title: "Sacrament Meeting Planner",
-  description: "Used for Wards or Branches to manage their meeting programs",
+  title: {
+    default: "Sacrament Meeting Planner",
+    template: "%s | Sacrament Meeting Planner",
+  },
+  description:
+    "Plan and manage sacrament meeting programs for your ward or branch.",
+  applicationName: "Sacrament Meeting Planner",
+  openGraph: {
+    title: "Sacrament Meeting Planner",
+    description:
+      "Plan and manage sacrament meeting programs for your ward or branch.",
+    type: "website",
+  },
+  robots: { index: false, follow: false }, // optional, see below
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {

@@ -4,10 +4,7 @@ import { NextAuthConfig } from "next-auth";
 export const authConfig = {
     secret: process.env.BETTER_AUTH_SECRET,
     pages: {
-        signIn: "/login",
-        signOut: "/auth/signout",
-        error: "/auth/error",
-        verifyRequest: "/auth/verify-request",
+        signIn: "/login"
     },
     callbacks: {
         authorized({ request, auth }) {
@@ -16,7 +13,7 @@ export const authConfig = {
 
             if (isProtected) return isLoggedIn
 
-            return true
+            return false;
         },
     },
     providers: [],

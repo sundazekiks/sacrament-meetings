@@ -1,5 +1,11 @@
 import { createMeeting } from '@/lib/action';
+import type { Metadata } from "next";
 
+export const metadata: Metadata = {
+    title: "Create Meeting",
+    description:
+        "Create a new sacrament meeting program, including hymns, prayers, speakers, and announcements.",
+};
 
 export default function Page() {
     const randomId = crypto.randomUUID()

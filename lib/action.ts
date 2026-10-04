@@ -10,6 +10,7 @@ import { revalidatePath } from 'next/cache';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { deleteMeeting } from './meetings-db';
 import { signIn, signOut } from '@/auth';
+import { AuthError } from 'next-auth';
 
 const HymnSchema = z.strictObject({
     number: z.number(),
@@ -123,10 +124,20 @@ export const deletingMeeting = async (id: number) => {
 
 export const signInUser = async (formData: FormData) => {
     console.log("Signing in user..." + formData.get("username"))
-    await signIn("credentials", {
-        username: formData.get("username") as string,
-        password: formData.get("password") as string,
-    })
+    try {
+        await signIn("credentials", {
+            username: formData.get("username") as string,
+            password: formData.get("password") as string,
+            redirectTo: "/"
+        })
+    } catch (err) {
+        if (err instanceof AuthError) {
+            console.error("Authentication error:", err.message);
+            return { success: false, message: err.message };
+        }
+        return { success: false, message: "An unexpected error occurred." };
+    }
+
 }
 
 export const signOutUser = async () => {

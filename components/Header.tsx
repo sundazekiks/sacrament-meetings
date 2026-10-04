@@ -33,18 +33,28 @@ export default function LocationDropdown({ isLoggedIn }: { isLoggedIn: boolean }
                 )}
 
             </div>
+
+
+            <Link href={`/meetings/new`}
+                className="flex items-center gap-2 rounded-sm border border-border bg-surface px-4 py-2 text-sm text-foreground transition-colors hover:border-accent hover:bg-accent-soft hover:text-accent-hover m-2 cursor-pointer"
+                aria-expanded={active}
+            >
+                New
+            </Link>
+
+
             {
-                isLoggedIn && (
-                    <Link href={`/meetings/new`}
+                isLoggedIn && (<Logout />)
+            }
+            {
+                !isLoggedIn && (
+                    <Link href={`/login`}
                         className="flex items-center gap-2 rounded-sm border border-border bg-surface px-4 py-2 text-sm text-foreground transition-colors hover:border-accent hover:bg-accent-soft hover:text-accent-hover m-2 cursor-pointer"
                         aria-expanded={active}
                     >
-                        New
+                        Login
                     </Link>
                 )
-            }
-            {
-                isLoggedIn && (<Logout />)
             }
             <Link href={`/meetings/current`}
                 className="flex items-center gap-2 rounded-sm border border-border bg-surface px-4 py-2 text-sm text-foreground transition-colors hover:border-accent hover:bg-accent-soft hover:text-accent-hover m-2 cursor-pointer"

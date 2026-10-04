@@ -5,5 +5,5 @@ export default NextAuth(authConfig).auth;
 
 export const config = {
     // Run middleware on all routes except static files and Next.js internals
-    matcher: ["/meetings/new", "/api/auth/:path*"],
+    matcher: ["/meetings/new"],
 };
