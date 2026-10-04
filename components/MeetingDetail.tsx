@@ -1,10 +1,77 @@
 "use client"
 import { useEffect, useState, type ReactNode } from "react";
-import { SacramentMeeting } from "@/lib/types";
+import DeleteMeetingButton from "./DeleteBtn";
+import { notFound } from "next/navigation";
+
+/* ---------- Safe shape + normalizer ---------- */
+
+type Hymn = { number: number | null; title: string };
+
+type SafeMeeting = {
+    date: string;
+    meetingType: string;
+    presiding: string;
+    conducting: string;
+    announcements: string[];
+    openingHymn: Hymn | null;
+    openingPrayer: string;
+    wardBusiness: string[];
+    stakeBusiness: boolean;
+    sacramentHymn: Hymn | null;
+    speakers: { name: string; topic: string }[];
+    closingHymn: Hymn | null;
+    closingPrayer: string;
+};
+
+const isObj = (v: unknown): v is Record<string, unknown> =>
+    typeof v === "object" && v !== null && !Array.isArray(v);
+
+const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+const arr = (v: unknown): unknown[] => (Array.isArray(v) ? v : []);
+
+function toHymn(v: unknown): Hymn | null {
+    if (!isObj(v)) return null;
+    const n = typeof v.number === "number" ? v.number : parseInt(String(v.number), 10);
+    const number = Number.isFinite(n) ? n : null;
+    const title = str(v.title);
+    if (number === null && !title) return null;
+    return { number, title };
+}
+
+function normalizeMeeting(raw: unknown): SafeMeeting | null {
+    if (!isObj(raw)) return null;
+
+    return {
+        date: str(raw.date),
+        meetingType: str(raw.meetingType),
+        presiding: str(raw.presiding),
+        conducting: str(raw.conducting),
+        announcements: arr(raw.announcements).map(str).filter(Boolean),
+        openingHymn: toHymn(raw.openingHymn),
+        openingPrayer: str(raw.openingPrayer),
+        // accepts either strings or { description } objects
+        wardBusiness: arr(raw.wardBusiness)
+            .map((item) => (isObj(item) ? str(item.description) : str(item)))
+            .filter(Boolean),
+        stakeBusiness: Boolean(raw.stakeBusiness),
+        sacramentHymn: toHymn(raw.sacramentHymn),
+        speakers: arr(raw.speakers)
+            .filter(isObj)
+            .map((s) => ({ name: str(s.name), topic: str(s.topic) }))
+            .filter((s) => s.name),
+        closingHymn: toHymn(raw.closingHymn),
+        closingPrayer: str(raw.closingPrayer),
+    };
+}
+
+
 
 function formatMeetingDate(iso: string) {
-    const [year, month, day] = iso.split("-").map(Number);
+    // slice handles both "2026-09-28" and "2026-09-28T00:00:00.000Z"
+    const [year, month, day] = iso.slice(0, 10).split("-").map(Number);
+    if (!year || !month || !day) return "";
     const date = new Date(year, month - 1, day);
+    if (Number.isNaN(date.getTime())) return "";
     return date.toLocaleDateString("en-US", {
         weekday: "long",
         month: "long",
@@ -12,6 +79,18 @@ function formatMeetingDate(iso: string) {
         year: "numeric",
     });
 }
+
+function formatHymn(h: Hymn) {
+    return [h.number !== null ? `Hymn ${h.number}` : "Hymn", h.title]
+        .filter(Boolean)
+        .join(": ");
+}
+
+function capitalize(s: string) {
+    return s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
+}
+
+
 
 function Divider() {
     return (
@@ -37,27 +116,16 @@ function Row({ label, value }: { label: string; value?: string | null }) {
     );
 }
 
-function HymnRow({
-    label,
-    hymn,
-}: {
-    label: string;
-    hymn?: { number: number; title: string };
-}) {
+function HymnRow({ label, hymn }: { label: string; hymn: Hymn | null }) {
     if (!hymn) return null;
-    return (
-        <div className="flex items-baseline justify-between gap-4 border-b border-border py-2 last:border-0">
-            <span className="text-sm text-foreground-muted">{label}</span>
-            <span className="text-right font-serif text-[15px] text-foreground">
-                Hymn {hymn.number}: {hymn.title}
-            </span>
-        </div>
-    );
+    return <Row label={label} value={formatHymn(hymn)} />;
 }
 
+
 export default function MeetingDetail({ id }: { id: number }) {
-    const [meeting, setMeeting] = useState<SacramentMeeting | null>(null);
+    const [meeting, setMeeting] = useState<SafeMeeting | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [missing, setMissing] = useState(false);
 
     useEffect(() => {
         let cancelled = false;
@@ -65,14 +133,18 @@ export default function MeetingDetail({ id }: { id: number }) {
         async function getMeetingDetails() {
             try {
                 const res = await fetch(`/api/meetings/${id}`);
-                const result = await res.json();
+                if (res.status === 404) {
+                    if (!cancelled) setMissing(true);
+                    return;
+                }
+                if (!res.ok) throw new Error("Failed to load meeting");
 
-                if (!res.ok) {
-                    throw new Error(result.message ?? "Failed to load meeting");
-                }
-                if (!cancelled) {
-                    setMeeting(result.meeting);
-                }
+                const result = await res.json();
+                // tolerate both { meeting: {...} } and a bare meeting object
+                const normalized = normalizeMeeting(result?.meeting ?? result);
+                if (!normalized) throw new Error("Unexpected response from server");
+
+                if (!cancelled) setMeeting(normalized);
             } catch (err) {
                 console.error(err);
                 if (!cancelled) {
@@ -82,11 +154,12 @@ export default function MeetingDetail({ id }: { id: number }) {
         }
 
         getMeetingDetails();
-
         return () => {
             cancelled = true;
         };
     }, [id]);
+
+    if (missing) notFound();
 
     if (error) {
         return (
@@ -104,13 +177,23 @@ export default function MeetingDetail({ id }: { id: number }) {
         );
     }
 
+    const formattedDate = formatMeetingDate(meeting.date);
+    const hasOpening = meeting.openingHymn || meeting.openingPrayer;
+    const hasWardStake = meeting.wardBusiness.length > 0 || meeting.stakeBusiness;
+    const hasClosing = meeting.closingHymn || meeting.closingPrayer;
+
     return (
         <div className="mx-auto max-w-xl px-4 py-10">
+            <DeleteMeetingButton id={id} />
             <div className="rounded-sm border border-border bg-surface px-6 py-10 shadow-sm sm:px-12">
                 {/* Header */}
                 <div className="text-center">
-                    <p className="text-xs text-foreground-subtle">{formatMeetingDate(meeting.date)}</p>
-                    <h1 className="mt-3 font-serif text-3xl text-foreground">{meeting.meetingType.charAt(0).toUpperCase() + meeting.meetingType.slice(1)}</h1>
+                    {formattedDate && (
+                        <p className="text-xs text-foreground-subtle">{formattedDate}</p>
+                    )}
+                    <h1 className="mt-3 font-serif text-3xl text-foreground">
+                        {capitalize(meeting.meetingType) || "Meeting program"}
+                    </h1>
                     <div className="mt-5 flex flex-wrap justify-center gap-x-8 gap-y-1 text-sm text-foreground-muted">
                         {meeting.presiding && (
                             <span>
@@ -128,7 +211,7 @@ export default function MeetingDetail({ id }: { id: number }) {
                 <Divider />
 
                 {/* Announcements */}
-                {meeting.announcements && meeting.announcements.length > 0 && (
+                {meeting.announcements.length > 0 && (
                     <>
                         <section>
                             <SectionTitle>Announcements</SectionTitle>
@@ -146,28 +229,26 @@ export default function MeetingDetail({ id }: { id: number }) {
                 )}
 
                 {/* Opening */}
-                <section>
-                    <SectionTitle>Opening exercises</SectionTitle>
-                    <div className="mt-3">
-                        <HymnRow label="Opening hymn" hymn={meeting.openingHymn} />
-                        <Row label="Invocation" value={meeting.openingPrayer} />
-                    </div>
-                </section>
+                {hasOpening && (
+                    <section>
+                        <SectionTitle>Opening exercises</SectionTitle>
+                        <div className="mt-3">
+                            <HymnRow label="Opening hymn" hymn={meeting.openingHymn} />
+                            <Row label="Invocation" value={meeting.openingPrayer} />
+                        </div>
+                    </section>
+                )}
 
                 {/* Ward / stake business */}
-                {(meeting.wardBusiness.length > 0 || meeting.stakeBusiness) && (
+                {hasWardStake && (
                     <>
-                        <Divider />
+                        {hasOpening && <Divider />}
                         <section>
                             <SectionTitle>Ward and stake business</SectionTitle>
                             <ul className="mt-3 space-y-2">
                                 {meeting.wardBusiness.map((item, i) => (
                                     <li key={i} className="text-[15px] text-foreground-muted">
-                                        {item.description && (
-                                            <span className="block text-sm text-foreground-subtle">
-                                                {item.description}
-                                            </span>
-                                        )}
+                                        {item}
                                     </li>
                                 ))}
                                 {meeting.stakeBusiness && (
@@ -180,15 +261,18 @@ export default function MeetingDetail({ id }: { id: number }) {
                     </>
                 )}
 
-                <Divider />
-
-                {/* Sacrament — the focal point of the program */}
-                <section className="rounded-sm bg-accent-soft px-5 py-5 text-center">
-                    <p className="text-xs text-accent">Sacrament hymn</p>
-                    <p className="mt-1 font-serif text-lg text-foreground">
-                        Hymn {meeting.sacramentHymn.number}: {meeting.sacramentHymn.title}
-                    </p>
-                </section>
+                {/* Sacrament */}
+                {meeting.sacramentHymn && (
+                    <>
+                        {(hasOpening || hasWardStake) && <Divider />}
+                        <section className="rounded-sm bg-accent-soft px-5 py-5 text-center">
+                            <p className="text-xs text-accent">Sacrament hymn</p>
+                            <p className="mt-1 font-serif text-lg text-foreground">
+                                {formatHymn(meeting.sacramentHymn)}
+                            </p>
+                        </section>
+                    </>
+                )}
 
                 {/* Speakers */}
                 {meeting.speakers.length > 0 && (
@@ -213,16 +297,19 @@ export default function MeetingDetail({ id }: { id: number }) {
                     </>
                 )}
 
-                <Divider />
-
                 {/* Closing */}
-                <section>
-                    <SectionTitle>Closing</SectionTitle>
-                    <div className="mt-3">
-                        <HymnRow label="Closing hymn" hymn={meeting.closingHymn} />
-                        <Row label="Benediction" value={meeting.closingPrayer} />
-                    </div>
-                </section>
+                {hasClosing && (
+                    <>
+                        <Divider />
+                        <section>
+                            <SectionTitle>Closing</SectionTitle>
+                            <div className="mt-3">
+                                <HymnRow label="Closing hymn" hymn={meeting.closingHymn} />
+                                <Row label="Benediction" value={meeting.closingPrayer} />
+                            </div>
+                        </section>
+                    </>
+                )}
             </div>
         </div>
     );

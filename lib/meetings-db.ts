@@ -1,6 +1,6 @@
 import type { SacramentMeeting } from './types';
 import { sql } from './sql';
-
+import { AppError } from '@/components/AppError';
 const ITEMS_PER_PAGE = 4;
 
 export async function getMeetings(
@@ -53,7 +53,7 @@ export async function getMeetingsTotalPages(
 
 export async function getMeetingById(
   id: number
-): Promise<SacramentMeeting | null> {
+): Promise<SacramentMeeting> {
   const rows = await sql`
     SELECT
       id,
@@ -70,25 +70,91 @@ export async function getMeetingById(
       closing_prayer              AS "closingPrayer"
     FROM sacrament_meetings.meetings WHERE id = ${id}
   `;
-  return (rows[0] as unknown as SacramentMeeting) ?? null;
+  return (rows[0] as unknown as SacramentMeeting) ?? {};
 }
 
 // Mutation stubs — will be wired to the database in Week 04
 
 
-// export async function addMeeting(
-//     data: Omit<SacramentMeeting, 'id'>
-// ): Promise<SacramentMeeting> {
-//     throw new Error('addMeeting: database implementation coming in Week 04');
-// }
+export async function addMeeting(
+  data: Omit<SacramentMeeting, 'id'>
+): Promise<SacramentMeeting> {
 
-// export async function updateMeeting(
-//     id: number,
-//     updates: Partial<SacramentMeeting>
-// ): Promise<SacramentMeeting | null> {
-//     throw new Error('updateMeeting: database implementation coming in Week 04');
-// }
+  const create = await sql`
+  INSERT INTO sacrament_meetings.meetings (
+    date,
+    meeting_type,
+    presiding,
+    conducting,
+    announcements,
+    opening_hymn,
+    opening_prayer,
+    ward_business,
+    stake_business,
+    sacrament_hymn,
+    speakers,
+    closing_hymn,
+    closing_prayer
+  )
+  VALUES (
+    ${data.date},
+    ${data.meetingType},
+    ${data.presiding},
+    ${data.conducting},
+    ${data.announcements},
+    ${JSON.stringify(data.openingHymn)},
+    ${data.openingPrayer},
+    ${data.wardBusiness ? JSON.stringify(data.wardBusiness) : null},
+    ${data.stakeBusiness},
+    ${JSON.stringify(data.sacramentHymn)},
+    ${JSON.stringify(data.speakers)},
+    ${JSON.stringify(data.closingHymn)},
+    ${data.closingPrayer}
+  )
+  RETURNING *
+`
+  if (create.length === 0) throw new AppError('Failed to create meeting', 500, 500)
+  const meeting = create[0]
+  return meeting as SacramentMeeting
+}
 
-// export async function deleteMeeting(id: number): Promise<boolean> {
-//     throw new Error('deleteMeeting: database implementation coming in Week 04');
-// }
+export async function updateMeeting(
+  id: number,
+  data: Partial<SacramentMeeting>
+): Promise<SacramentMeeting> {
+
+  const update = await sql`
+    UPDATE sacrament_meetings.meetings
+    SET
+      date = ${data.date},
+      meeting_type = ${data.meetingType},
+      presiding = ${data.presiding},
+      conducting = ${data.conducting},
+      announcements = ${data.announcements},
+      opening_hymn = ${JSON.stringify(data.openingHymn)},
+      opening_prayer = ${data.openingPrayer},
+      stake_business = ${data.stakeBusiness},
+      sacrament_hymn = ${JSON.stringify(data.sacramentHymn)},
+      speakers = ${JSON.stringify(data.speakers)},
+      closing_hymn = ${JSON.stringify(data.closingHymn)},
+      closing_prayer = ${data.closingPrayer}
+    WHERE id = ${id}
+    RETURNING *
+  `;
+  if (update.length === 0) throw new AppError('Failed to create meeting', 500, 500)
+  const meeting = update[0]
+  return meeting as SacramentMeeting
+}
+
+export async function deleteMeeting(id: number): Promise<boolean> {
+
+  const deleteRec = await sql`
+  DELETE FROM sacrament_meetings.meetings
+  WHERE id = ${id}
+  RETURNING *`;
+
+  if (deleteRec.length == 0) throw new AppError("Error on deleting this meeting", 500, 500);
+
+
+  return true;
+}

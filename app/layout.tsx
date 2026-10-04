@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { auth } from "@/auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,18 +15,33 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+
 export const metadata: Metadata = {
-  title: "Sacrament Meeting Planner",
-  description: "Used for Wards or Branches to manage their meeting programs",
+  title: {
+    default: "Sacrament Meeting Planner",
+    template: "%s | Sacrament Meeting Planner",
+  },
+  description:
+    "Plan and manage sacrament meeting programs for your ward or branch.",
+  applicationName: "Sacrament Meeting Planner",
+  openGraph: {
+    title: "Sacrament Meeting Planner",
+    description:
+      "Plan and manage sacrament meeting programs for your ward or branch.",
+    type: "website",
+  },
+  robots: { index: false, follow: false }, // optional, see below
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const isLoggedIn = await auth();
+
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        <Header />
+        <Header isLoggedIn={!isLoggedIn ? false : true} />
         <main className="flex-1 bg-surface">
           {children}
         </main>

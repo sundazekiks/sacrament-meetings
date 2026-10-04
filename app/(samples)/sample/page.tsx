@@ -1,11 +1,5 @@
-import { createMeeting } from '@/lib/action';
-import type { Metadata } from "next";
+import { createMeeting } from '../../../lib/action';
 
-export const metadata: Metadata = {
-    title: "Create Meeting",
-    description:
-        "Create a new sacrament meeting program, including hymns, prayers, speakers, and announcements.",
-};
 
 export default function Page() {
     const randomId = crypto.randomUUID()
@@ -97,33 +91,33 @@ export default function Page() {
                 <legend className="px-1 text-sm font-medium text-slate-700">Speakers</legend>
                 <div className="space-y-3">
                     <div className='speaker1 grid gap-3 sm:grid-cols-[1fr_1fr_auto]'>
-                        <input type="text" name='name' placeholder="Name"
+                        <input type="text" name='name1' placeholder="Name"
                             className="rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200" />
-                        <input type="text" name='topic' placeholder="Topic"
+                        <input type="text" name='topic1' placeholder="Topic"
                             className="rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200" />
-                        <select name="type" id="type"
+                        <select name="type1" id="type1"
                             className="rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200">
                             <option value="speaker">Speaker</option>
                             <option value="musical-number">Musical Number</option>
                         </select>
                     </div>
                     <div className='speaker2 grid gap-3 sm:grid-cols-[1fr_1fr_auto]'>
-                        <input type="text" name='name' placeholder="Name"
+                        <input type="text" name='name2' placeholder="Name"
                             className="rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200" />
-                        <input type="text" name='topic' placeholder="Topic"
+                        <input type="text" name='topic2' placeholder="Topic"
                             className="rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200" />
-                        <select name="type2" id="type"
+                        <select name="type2" id="type2"
                             className="rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200">
                             <option value="speaker">Speaker</option>
                             <option value="musical-number">Musical Number</option>
                         </select>
                     </div>
                     <div className='speaker1 grid gap-3 sm:grid-cols-[1fr_1fr_auto]'>
-                        <input type="text" name='name' placeholder="Name"
+                        <input type="text" name='name3' placeholder="Name"
                             className="rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200" />
-                        <input type="text" name='topic' placeholder="Topic"
+                        <input type="text" name='topic3' placeholder="Topic"
                             className="rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200" />
-                        <select name="type" id="type"
+                        <select name="type3" id="type3"
                             className="rounded-md border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200">
                             <option value="speaker">Speaker</option>
                             <option value="musical-number">Musical Number</option>
